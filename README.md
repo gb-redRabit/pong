@@ -9,4 +9,4 @@ Prosta gra w Ponga nic dodac, nic ujać
 
 ## Demo
 
-https://grzbejta.github.io/pong/
+https://gb-redrabit.github.io/pong/
