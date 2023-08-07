@@ -38,8 +38,9 @@ window.addEventListener('resize', () => {
 
 window.onload = () => {
   canvas.addEventListener('mousedown', handlClick);
-  window.addEventListener('touchenter ', (e) => {
-    console.log(e);
+  window.addEventListener('touchmove ', (e) => {
+    let mousePos = calMousePos(e);
+    padY = mousePos.y - padHeight / 2;
   });
   canvas.addEventListener('mousemove', (e) => {
     let mousePos = calMousePos(e);
@@ -62,7 +63,7 @@ const handlClick = () => {
 const calMousePos = (e) => {
   let gameRect = canvas.getBoundingClientRect();
   let root = document.documentElement;
-
+  console.log(e.clientX);
   let mouseX = e.clientX - gameRect.left - root.scrollLeft;
   let mouseY = e.clientY - gameRect.top - root.scrollTop;
   return { x: mouseX, y: mouseY };
