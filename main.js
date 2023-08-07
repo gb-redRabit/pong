@@ -38,7 +38,7 @@ window.addEventListener('resize', () => {
 
 window.onload = () => {
   canvas.addEventListener('mousedown', handlClick);
-  canvas.addEventListener('touchenter ', (e) => {
+  window.addEventListener('touchenter ', (e) => {
     console.log(e);
   });
   canvas.addEventListener('mousemove', (e) => {
