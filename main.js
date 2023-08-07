@@ -38,7 +38,8 @@ window.addEventListener('resize', () => {
 
 window.onload = () => {
   canvas.addEventListener('mousedown', handlClick);
-  window.addEventListener('touchmove ', (e) => {
+  canvas.addEventListener('touchmove ', (e) => {
+    console.log('aaaa');
     let mousePos = calMousePos(e);
     padY = mousePos.y - padHeight / 2;
   });
