@@ -6,16 +6,16 @@ let ballX = canvas.width / 2;
 let ballY = canvas.height / 2;
 let ballSpeedX = 4;
 let ballSpeedY = 6;
-let sizeBall = canvas.width / 75;
+let sizeBall = canvas.width / 100;
 
-let aiLevel = 30;
+let aiLevel = 10;
 
 let plScore = 0,
   aiScore = 0;
 
 const winSorce = 3;
 
-let padHeight = canvas.height / 7;
+let padHeight = canvas.height / 5;
 let padY = canvas.height / 2 - padHeight / 2;
 let pad2Y = canvas.height / 2 - padHeight / 2;
 const padDistFromEdge = 10;
@@ -130,7 +130,7 @@ const moveElements = () => {
     audio.play();
     ballSpeedX = -ballSpeedX;
     let diffY = ballY - (padY + padHeight / 2);
-    ballSpeedY = diffY * 0.33;
+    ballSpeedY = diffY * 0.23;
   }
 
   let pad2Top = pad2Y;
@@ -147,7 +147,7 @@ const moveElements = () => {
     audio.play();
     ballSpeedX = -ballSpeedX;
     let diffY = ballY - (pad2Y + padHeight / 2);
-    ballSpeedY = diffY * 0.43;
+    ballSpeedY = diffY * 0.23;
   }
 };
 
