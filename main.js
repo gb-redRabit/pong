@@ -1,5 +1,5 @@
-const canvas = document.querySelector('#gameCanvas');
-const ctx = canvas.getContext('2d');
+const canvas = document.querySelector("#gameCanvas");
+const ctx = canvas.getContext("2d");
 ctx.canvas.width = window.innerWidth;
 ctx.canvas.height = window.innerHeight;
 let ballX = canvas.width / 2;
@@ -23,9 +23,9 @@ const padThickness = 10;
 
 let playGame = false;
 
-var audio = new Audio('./music/sound.wav');
-
-window.addEventListener('resize', () => {
+var audio = new Audio("./music/sound.wav");
+console.log(audio);
+window.addEventListener("resize", () => {
   ctx.canvas.width = window.innerWidth;
   ctx.canvas.height = window.innerHeight;
   ballX = canvas.width / 2;
@@ -37,16 +37,16 @@ window.addEventListener('resize', () => {
 });
 
 window.onload = () => {
-  canvas.addEventListener('mousedown', handlClick);
+  canvas.addEventListener("mousedown", handlClick);
   canvas.addEventListener(
-    'touchmove',
+    "touchmove",
     (e) => {
       let mousePos = calMousePos(e.targetTouches[0]);
       padY = mousePos.y - padHeight / 2;
     },
     false
   );
-  canvas.addEventListener('mousemove', (e) => {
+  canvas.addEventListener("mousemove", (e) => {
     let mousePos = calMousePos(e);
     padY = mousePos.y - padHeight / 2;
   });
@@ -67,7 +67,7 @@ const handlClick = () => {
 const calMousePos = (e) => {
   let gameRect = canvas.getBoundingClientRect();
   let root = document.documentElement;
-  
+
   let mouseX = e.clientX - gameRect.left - root.scrollLeft;
   let mouseY = e.clientY - gameRect.top - root.scrollTop;
   return { x: mouseX, y: mouseY };
@@ -156,19 +156,19 @@ const moveElements = () => {
 };
 
 const drawElements = () => {
-  drawRect(0, 0, canvas.width, canvas.height, '#000');
+  drawRect(0, 0, canvas.width, canvas.height, "#000");
 
   if (!playGame) {
     let text;
     if (plScore >= winSorce) {
-      text = 'Wygrałeś';
+      text = "Wygrałeś";
     } else if (aiScore >= winSorce) {
-      text = 'Przegrałeś';
+      text = "Przegrałeś";
     }
-    ctx.fillStyle = '#fff';
-    ctx.font = '30px Poppins';
+    ctx.fillStyle = "#fff";
+    ctx.font = "30px Poppins";
     ctx.fillText(
-      'Kliknij aby grać',
+      "Kliknij aby grać",
       canvas.width / 2 - 125,
       canvas.height / 2 - 50
     );
@@ -176,19 +176,19 @@ const drawElements = () => {
       ctx.fillText(text, canvas.width / 2 - 75, canvas.height / 2 + 50);
     return;
   } else {
-    ctx.className = 'red';
-    drawCircle(ballX, ballY, sizeBall, '#32f051');
+    ctx.className = "red";
+    drawCircle(ballX, ballY, sizeBall, "#32f051");
 
-    drawRect(padDistFromEdge, padY, padThickness, padHeight, '#14b32e');
+    drawRect(padDistFromEdge, padY, padThickness, padHeight, "#14b32e");
     drawRect(
       canvas.width - padThickness - padDistFromEdge,
       pad2Y,
       padThickness,
       padHeight,
-      '#14b32e'
+      "#14b32e"
     );
 
-    ctx.font = '50px Poppins';
+    ctx.font = "50px Poppins";
     ctx.fillText(plScore, canvas.width / 8, canvas.height / 10);
     ctx.fillText(aiScore, (canvas.width / 8) * 7, canvas.height / 10);
 
@@ -197,7 +197,7 @@ const drawElements = () => {
 };
 const drawNet = () => {
   for (let i = 0; i < canvas.height; i += 35) {
-    drawRect(canvas.width / 2 - 1, i, 2, 20, '#14b32e');
+    drawRect(canvas.width / 2 - 1, i, 2, 20, "#14b32e");
   }
 };
 const drawRect = (x, y, w, h, c) => {
