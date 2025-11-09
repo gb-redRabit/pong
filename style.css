@@ -1,0 +1,746 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;600;700;900&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary: #32f051;
+  --secondary: #14b32e;
+  --bg: #000;
+  --text-dim: #0a8020;
+}
+
+body {
+  font-family: "Courier New", monospace;
+  background: var(--bg);
+  color: var(--primary);
+  overflow: hidden;
+  height: 100vh;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* Ukryj wszystkie scrollbary ale zachowaj funkcjonalność */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) rgba(0, 0, 0, 0.5);
+}
+
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 2px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary);
+}
+
+/* Layout główny - 3 kolumny */
+.game-container {
+  display: grid;
+  grid-template-columns: 220px 1fr 240px;
+  height: 100vh;
+  gap: 0;
+  min-width: 0;
+  min-height: 0;
+  transition: grid-template-columns 0.3s ease;
+}
+
+/* Gdy gra jest aktywna - ukryj panele boczne */
+.game-container.playing {
+  grid-template-columns: 0 1fr 0;
+}
+
+.game-container.playing .info-panel,
+.game-container.playing .powerups-panel {
+  display: none;
+}
+
+/* Panele boczne */
+.info-panel,
+.powerups-panel {
+  background: rgba(0, 20, 0, 0.95);
+  box-shadow: 0 0 20px rgba(50, 240, 81, 0.3),
+    inset 0 0 50px rgba(50, 240, 81, 0.05);
+  padding: 0.8rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 5;
+  position: relative;
+}
+
+.info-panel {
+  border-right: none;
+}
+
+.powerups-panel {
+  border-left: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+/* Statystyki */
+.stat-box {
+  margin-bottom: 1rem;
+  padding: 0.8rem;
+  border: 2px solid var(--secondary);
+  background: rgba(20, 179, 46, 0.1);
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.1rem;
+  color: var(--text-dim);
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  font-family: "Courier New", monospace;
+}
+
+.stat-value {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--primary);
+  text-shadow: 0 0 15px var(--primary);
+  animation: glow 2s ease-in-out infinite;
+  font-family: "Courier New", monospace;
+}
+
+/* Power-upy panel */
+.panel-title {
+  font-size: 1.2rem;
+  text-align: center;
+  letter-spacing: 0.3rem;
+  margin-bottom: 1.5rem;
+  color: var(--primary);
+  text-shadow: 0 0 15px var(--primary);
+  font-weight: 700;
+}
+
+.powerup-list {
+  border: 3px solid var(--primary);
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.powerup-entry {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 0.6rem 1rem;
+  margin-bottom: 0.6rem;
+  border: 2px solid transparent;
+  transition: all 0.3s;
+  background: rgba(50, 240, 81, 0.05);
+  width: 100%;
+  max-width: 200px;
+  border-radius: 4px;
+}
+
+.powerup-entry:hover {
+  border-color: var(--primary);
+  background: rgba(50, 240, 81, 0.15);
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(50, 240, 81, 0.3);
+}
+
+.pu-icon {
+  font-size: 1.6rem;
+  width: 32px;
+  text-align: center;
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+.pu-name {
+  font-size: 0.7rem;
+  letter-spacing: 0.08rem;
+  font-weight: 700;
+  color: var(--secondary);
+  text-align: center;
+  flex: 1;
+}
+
+/* Powierzchnia gry */
+.game-area {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+  z-index: 1;
+}
+
+/* Gdy gra jest aktywna - rozszerz na cały ekran */
+.game-container.playing .game-area {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+}
+
+#gameCanvas {
+  display: none;
+  border: 4px solid var(--primary);
+  box-shadow: 0 0 40px rgba(50, 240, 81, 0.5),
+    inset 0 0 30px rgba(50, 240, 81, 0.1);
+  background: #000;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+}
+
+#gameCanvas.active {
+  display: block;
+}
+
+/* Canvas w trybie gry pełnoekranowej */
+.game-container.playing #gameCanvas.active {
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  border: none;
+  box-shadow: none;
+}
+
+/* Ukryj menu gdy gra jest aktywna */
+#gameCanvas.active ~ .menu-screen {
+  display: none !important;
+}
+
+/* Ekrany menu */
+.menu-screen {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 96%;
+  max-width: 100%;
+  max-height: 96%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.98);
+  border: 2px solid var(--primary);
+  box-shadow: 0 0 30px rgba(50, 240, 81, 0.5),
+    inset 0 0 50px rgba(50, 240, 81, 0.1);
+}
+
+.menu-screen.active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 0.5s;
+}
+
+/* Ukryj scrollbar ale zachowaj funkcjonalność */
+.menu-screen::-webkit-scrollbar {
+  width: 6px;
+}
+
+.menu-screen::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.menu-screen::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 3px;
+}
+
+/* Tytuł gry */
+.game-title {
+  font-size: 3.5rem;
+  font-weight: 900;
+  letter-spacing: 1rem;
+  margin: 0.5rem 0;
+  color: var(--primary);
+  text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary),
+    0 0 40px var(--primary);
+  animation: glow 2s ease-in-out infinite;
+  font-family: "Courier New", monospace;
+  text-transform: uppercase;
+}
+
+.cursor {
+  animation: blink 1s step-end infinite;
+}
+
+.game-subtitle {
+  font-size: 0.75rem;
+  letter-spacing: 0.3rem;
+  color: var(--secondary);
+  margin-bottom: 1.5rem;
+  font-weight: 300;
+  font-family: "Courier New", monospace;
+}
+
+.screen-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: 0.8rem;
+  margin-bottom: 1.5rem;
+  color: var(--primary);
+  text-shadow: 0 0 20px var(--primary);
+  font-family: "Courier New", monospace;
+  text-transform: uppercase;
+}
+
+/* Przyciski menu */
+.menu-buttons {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.menu-btn {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.5rem;
+  background: #000;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.2rem;
+  cursor: pointer;
+  font-family: "Courier New", monospace;
+  text-transform: uppercase;
+  transition: all 0.15s;
+  position: relative;
+  box-shadow: 0 0 15px rgba(50, 240, 81, 0.3);
+}
+
+.menu-btn:hover {
+  background: var(--primary);
+  color: #000;
+  box-shadow: 0 0 30px var(--primary), inset 0 0 15px rgba(0, 0, 0, 0.5);
+  transform: translateX(5px);
+}
+
+.menu-btn.secondary {
+  border-color: var(--secondary);
+  color: var(--secondary);
+  box-shadow: 0 0 10px rgba(20, 179, 46, 0.3);
+  font-size: 0.8rem;
+  padding: 0.7rem 1rem;
+}
+
+.menu-btn.secondary:hover {
+  background: var(--secondary);
+  color: #000;
+  box-shadow: 0 0 25px var(--secondary);
+}
+
+/* Sekcje */
+.section-title {
+  font-size: 1rem;
+  text-align: center;
+  letter-spacing: 0.2rem;
+  margin-bottom: 0.8rem;
+  color: var(--primary);
+  text-shadow: 0 0 15px var(--primary);
+  font-weight: 700;
+  font-family: "Courier New", monospace;
+}
+
+.difficulty-section {
+  width: 100%;
+  max-width: 100%;
+}
+
+.difficulty-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.diff-btn {
+  padding: 0.8rem 0.5rem;
+  background: #000;
+  border: 2px solid #333;
+  color: #666;
+  font-family: "Courier New", monospace;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.diff-btn span {
+  display: block;
+  font-size: 0.8rem;
+  letter-spacing: 0.1rem;
+  margin-bottom: 0.3rem;
+}
+
+.diff-btn small {
+  display: block;
+  font-size: 0.55rem;
+  letter-spacing: 0.06rem;
+  color: #555;
+}
+
+.diff-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 0 25px rgba(50, 240, 81, 0.4);
+}
+
+.diff-btn:hover small {
+  color: var(--secondary);
+}
+
+.diff-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #000;
+  box-shadow: 0 0 35px var(--primary), inset 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+.diff-btn.active small {
+  color: #000;
+}
+
+/* Tryby gry */
+.mode-list {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 1rem;
+}
+
+.mode-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem;
+  margin-bottom: 0.6rem;
+  background: #000;
+  border: 2px solid var(--secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  box-shadow: 0 0 10px rgba(20, 179, 46, 0.3);
+}
+
+.mode-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 6px;
+  height: 100%;
+  background: var(--primary);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.mode-item:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 35px rgba(50, 240, 81, 0.5);
+  transform: translateX(10px);
+}
+
+.mode-item:hover::before {
+  opacity: 1;
+}
+
+.mode-item.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  border-color: #333;
+  box-shadow: none;
+}
+
+.mode-item.disabled:hover {
+  transform: none;
+}
+
+.mode-icon {
+  font-size: 2rem;
+  min-width: 40px;
+  text-align: center;
+}
+
+.mode-info h4 {
+  font-size: 1rem;
+  letter-spacing: 0.12rem;
+  color: var(--primary);
+  margin-bottom: 0.3rem;
+  font-weight: 700;
+  font-family: "Courier New", monospace;
+}
+
+.mode-info p {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 0.03rem;
+  line-height: 1.3;
+  font-family: "Courier New", monospace;
+}
+
+/* Ustawienia */
+.settings-section {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.theme-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+/* Animacje */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes glow {
+  0%,
+  100% {
+    text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary),
+      0 0 40px var(--primary);
+  }
+  50% {
+    text-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary),
+      0 0 80px var(--primary);
+  }
+}
+
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Scanline effect */
+.menu-screen::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* CRT effect */
+.game-area::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Responsywność */
+@media (max-width: 1400px) {
+  .game-container {
+    grid-template-columns: 200px 1fr 220px;
+  }
+
+  .game-title {
+    font-size: 3rem;
+    letter-spacing: 0.8rem;
+  }
+
+  .menu-screen {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .game-container {
+    grid-template-columns: 180px 1fr 200px;
+  }
+
+  .game-title {
+    font-size: 2.8rem;
+    letter-spacing: 0.7rem;
+  }
+
+  .screen-title {
+    font-size: 2rem;
+    letter-spacing: 0.6rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .game-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+    height: 100vh;
+  }
+
+  .info-panel {
+    grid-row: 1;
+    border: 2px solid var(--primary);
+    border-bottom: none;
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .stat-box {
+    flex: 1;
+    margin-bottom: 0;
+    padding: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.6rem;
+  }
+
+  .stat-value {
+    font-size: 1.2rem;
+  }
+
+  .game-area {
+    grid-row: 2;
+    border-left: 2px solid var(--primary);
+    border-right: 2px solid var(--primary);
+  }
+
+  .powerups-panel {
+    grid-row: 3;
+    border: 2px solid var(--primary);
+    border-top: none;
+    padding: 0.5rem;
+  }
+
+  .powerup-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.3rem;
+  }
+
+  .powerup-entry {
+    flex-direction: column;
+    text-align: center;
+    padding: 0.3rem;
+    margin: 0;
+  }
+
+  .pu-icon {
+    font-size: 1.2rem;
+    width: auto;
+  }
+
+  .pu-name {
+    font-size: 0.6rem;
+  }
+
+  .game-title {
+    font-size: 2.2rem;
+    letter-spacing: 0.6rem;
+  }
+
+  .screen-title {
+    font-size: 1.8rem;
+    letter-spacing: 0.5rem;
+  }
+
+  .menu-screen {
+    padding: 0.8rem;
+  }
+
+  .menu-btn {
+    font-size: 0.85rem;
+    padding: 0.7rem;
+  }
+
+  .difficulty-buttons {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-title {
+    font-size: 1.8rem;
+    letter-spacing: 0.4rem;
+  }
+
+  .screen-title {
+    font-size: 1.5rem;
+    letter-spacing: 0.4rem;
+  }
+
+  .menu-screen {
+    padding: 0.5rem;
+  }
+
+  .mode-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+    padding: 0.6rem;
+  }
+
+  .menu-btn {
+    font-size: 0.75rem;
+    padding: 0.6rem;
+    letter-spacing: 0.15rem;
+  }
+
+  .diff-btn span {
+    font-size: 0.7rem;
+  }
+
+  .diff-btn small {
+    font-size: 0.5rem;
+  }
+}

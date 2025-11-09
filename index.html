@@ -2,23 +2,243 @@
 <html lang="pl">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pong</title>
-    <style>
-      @import url(https://fonts.googleapis.com/css?family=Poppins:100,100italic,200,200italic,300,300italic,regular,italic,500,500italic,600,600italic,700,700italic,800,800italic,900,900italic);
-      * {
-        padding: 0;
-        margin: 0;
-        box-sizing: border-box;
-      }
-      body {
-        overflow: hidden;
-      }
-    </style>
+    <title>PONG - Retro Edition</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <canvas id="gameCanvas"></canvas>
-    <script src="./main.js"></script>
+    <div class="game-container">
+      <!-- Info panel (lewy) -->
+      <aside class="info-panel">
+        <div class="stat-box">
+          <div class="stat-label">NAJLEPSZY<br />WYNIK</div>
+          <div class="stat-value" id="highScoreDisplay">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">AKTUALNY<br />TRYB</div>
+          <div class="stat-value" id="currentModeDisplay">CLASSIC</div>
+        </div>
+      </aside>
+
+      <!-- Główna powierzchnia gry -->
+      <main class="game-area">
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- Menu główne -->
+        <div id="menuScreen" class="menu-screen active">
+          <h1 class="game-title">PONG<span class="cursor">█</span></h1>
+          <p class="game-subtitle">[ RETRO EDITION ]</p>
+
+          <nav class="menu-buttons">
+            <button class="menu-btn" onclick="startGame('single')">
+              ▶ 1 GRACZ
+            </button>
+            <button class="menu-btn" onclick="startGame('two-player')">
+              ▶ 2 GRACZY
+            </button>
+            <button
+              class="menu-btn secondary"
+              onclick="showScreen('modeScreen')"
+            >
+              ▶ TRYBY GRY
+            </button>
+            <button
+              class="menu-btn secondary"
+              onclick="showScreen('settingsScreen')"
+            >
+              ▶ USTAWIENIA
+            </button>
+          </nav>
+
+          <div class="difficulty-section">
+            <h3 class="section-title">◄ TRUDNOŚĆ ►</h3>
+            <div class="difficulty-buttons">
+              <button class="diff-btn active" onclick="setDifficulty('EASY')">
+                <span>ŁATWY</span>
+                <small>AI WOLNE</small>
+              </button>
+              <button class="diff-btn" onclick="setDifficulty('MEDIUM')">
+                <span>ŚREDNI</span>
+                <small>AI NORMALNE</small>
+              </button>
+              <button class="diff-btn" onclick="setDifficulty('HARD')">
+                <span>TRUDNY</span>
+                <small>AI SZYBKIE</small>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wybór trybu -->
+        <div id="modeScreen" class="menu-screen">
+          <h2 class="screen-title">TRYBY GRY</h2>
+
+          <div class="mode-list">
+            <div class="mode-item" onclick="selectMode('CLASSIC')">
+              <span class="mode-icon">🎮</span>
+              <div class="mode-info">
+                <h4>CLASSIC</h4>
+                <p>Klasyczna gra do 5 punktów</p>
+              </div>
+            </div>
+
+            <div class="mode-item" onclick="selectMode('TIME_ATTACK')">
+              <span class="mode-icon">⏰</span>
+              <div class="mode-info">
+                <h4>TIME ATTACK</h4>
+                <p>Maksymalna liczba punktów w 3 minuty</p>
+              </div>
+            </div>
+
+            <div class="mode-item" onclick="selectMode('FIRST_TO_10')">
+              <span class="mode-icon">🏆</span>
+              <div class="mode-info">
+                <h4>FIRST TO 10</h4>
+                <p>Pierwszy do 10 punktów wygrywa</p>
+              </div>
+            </div>
+
+            <div class="mode-item" onclick="selectMode('SPEED_MODE')">
+              <span class="mode-icon">💥</span>
+              <div class="mode-info">
+                <h4>SPEED MODE</h4>
+                <p>Piłka zawsze bardzo szybka</p>
+              </div>
+            </div>
+
+            <div class="mode-item" onclick="selectMode('CHAOS_MODE')">
+              <span class="mode-icon">🎪</span>
+              <div class="mode-info">
+                <h4>CHAOS MODE</h4>
+                <p>Losowe power-upy co 5 sekund</p>
+              </div>
+            </div>
+
+            <div class="mode-item" onclick="selectMode('SURVIVAL')">
+              <span class="mode-icon">🌟</span>
+              <div class="mode-info">
+                <h4>SURVIVAL</h4>
+                <p>Piłka przyspiesza bez limitu</p>
+              </div>
+            </div>
+
+            <div class="mode-item" onclick="selectMode('TARGET_PRACTICE')">
+              <span class="mode-icon">🎯</span>
+              <div class="mode-info">
+                <h4>TARGET PRACTICE</h4>
+                <p>Trafiaj w cele przez 60 sekund</p>
+              </div>
+            </div>
+
+            <div class="mode-item" onclick="selectMode('VOLLEYBALL')">
+              <span class="mode-icon">🏐</span>
+              <div class="mode-info">
+                <h4>VOLLEYBALL</h4>
+                <p>Piłka musi odbić się od podłoża</p>
+              </div>
+            </div>
+
+            <div class="mode-item disabled">
+              <span class="mode-icon">📖</span>
+              <div class="mode-info">
+                <h4>KAMPANIA</h4>
+                <p>Dostępne w przyszłości</p>
+              </div>
+            </div>
+          </div>
+
+          <button class="menu-btn secondary" onclick="showScreen('menuScreen')">
+            ← POWRÓT
+          </button>
+        </div>
+
+        <!-- Ustawienia -->
+        <div id="settingsScreen" class="menu-screen">
+          <h2 class="screen-title">USTAWIENIA</h2>
+
+          <section class="settings-section">
+            <h3 class="section-title">◄ GRACZ 1 ►</h3>
+            <div id="player1Settings"></div>
+          </section>
+
+          <section class="settings-section">
+            <h3 class="section-title">◄ GRACZ 2 ►</h3>
+            <div id="player2Settings"></div>
+          </section>
+
+          <section class="settings-section">
+            <h3 class="section-title">◄ MOTYW ►</h3>
+            <div class="theme-buttons">
+              <button class="menu-btn" onclick="setTheme('neon')">
+                🌈 NEON
+              </button>
+              <button class="menu-btn" onclick="setTheme('retro')">
+                🎨 RETRO
+              </button>
+              <button class="menu-btn" onclick="setTheme('dark')">
+                🌙 CIEMNY
+              </button>
+            </div>
+          </section>
+
+          <button class="menu-btn secondary" onclick="showScreen('menuScreen')">
+            ← POWRÓT
+          </button>
+        </div>
+      </main>
+
+      <!-- Legenda power-upów (prawy) -->
+      <aside class="powerups-panel">
+        <h3 class="panel-title">◄ POWER-UPY ►</h3>
+        <div class="powerup-list">
+          <div class="powerup-entry">
+            <span class="pu-icon" style="color: #ffff33">▲</span>
+            <span class="pu-name">SPEED (Trójkąt)</span>
+          </div>
+          <div class="powerup-entry">
+            <span class="pu-icon" style="color: #33ff33">⬡</span>
+            <span class="pu-name">BIG PAD (Heksagon)</span>
+          </div>
+          <div class="powerup-entry">
+            <span class="pu-icon" style="color: #ff3333">■</span>
+            <span class="pu-name">SMALL PAD (Kwadrat)</span>
+          </div>
+          <div class="powerup-entry">
+            <span class="pu-icon" style="color: #33aaff">●</span>
+            <span class="pu-name">MULTI-BALL (Koło)</span>
+          </div>
+          <div class="powerup-entry">
+            <span class="pu-icon" style="color: #00ffff">✦</span>
+            <span class="pu-name">FREEZE (Gwiazda 4)</span>
+          </div>
+          <div class="powerup-entry">
+            <span class="pu-icon" style="color: #aa00aa">◆</span>
+            <span class="pu-name">INVISIBLE (Diament)</span>
+          </div>
+          <div class="powerup-entry">
+            <span class="pu-icon" style="color: #ffaa00">⬠</span>
+            <span class="pu-name">SHIELD (Pentagon)</span>
+          </div>
+          <div class="powerup-entry">
+            <span class="pu-icon" style="color: #ff00ff">★</span>
+            <span class="pu-name">REVERSE (Gwiazda 5)</span>
+          </div>
+          <div class="powerup-entry">
+            <span class="pu-icon" style="color: #8888ff">◉</span>
+            <span class="pu-name">SLOW-MO (Spirala)</span>
+          </div>
+          <div class="powerup-entry">
+            <span class="pu-icon" style="color: #ff00ff">⊕</span>
+            <span class="pu-name">MAGNET (Krzyż)</span>
+          </div>
+          <div class="powerup-entry">
+            <span class="pu-icon" style="color: #aa00aa">✕</span>
+            <span class="pu-name">GHOST PAD (X)</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <script type="module" src="./js/app.js"></script>
   </body>
 </html>
